@@ -1,0 +1,10 @@
+---
+- name: Install redmine themes
+  copy:
+    src: "{{ role_path }}/files/themes"
+    dest: "/home/{{ redmine_system_user }}/redmine/public/themes"
+
+- name: Install redmine plugins
+  copy:
+    src: "{{ role_path }}/files/plugins"
+    dest: "/home/{{ redmine_system_user }}/redmine/public/plugins"

@@ -1,0 +1,38 @@
+---
+- hosts: all
+  pre_tasks:
+
+    # Expected variables:
+    #
+    # `ruby_version`               - ruby version
+    # `letsencrypt_email`          - email to be registered with certbot
+    # `redmine_hostname`           - the domain this redmine will be under
+    # `redmine_system_user`        - the linux user who will perform redmine operations
+    # `redmine_database_name`      - name of the redmine postgres database
+    # `redmine_database_username`  - name of the redmine postgres user
+    # `redmine_database_password`  - password for the redmine postgres user
+    - name: Load user variables
+      include_vars:
+        file: deployment_vars.yaml
+    
+    - name: Upgrade all packages
+      yum:
+        name: '*'
+        state: latest
+      become: yes
+
+    - name: "Create {{ redmine_system_user }} system user"
+      user:
+        name: "{{ redmine_system_user }}"
+        state: present
+      become: yes
+
+  roles:
+    - postgres
+    - ruby
+    - redmine
+    - redmine-extras
+    - redmine-backup
+    - passenger-nginx
+    - certbot
+

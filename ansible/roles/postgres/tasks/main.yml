@@ -1,0 +1,36 @@
+---
+- name: Add postgres 10 repo
+  yum:
+    name: https://yum.postgresql.org/10/redhat/rhel-7-x86_64/pgdg-centos10-10-2.noarch.rpm
+    state: present
+  become: yes
+
+- name: Install postgres 10
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - postgresql10-server
+    - postgresql10-contrib
+    - postgresql10
+    - postgresql10-libs
+    - postgresql10-devel
+  become: yes
+
+- name: Check if postgres 10 data directory is already populated
+  stat:
+    path: /var/lib/pgsql/10/data/PG_VERSION
+  register: pg_stat_result
+  become: yes
+
+- name: Initialize postgres
+  shell: /usr/pgsql-10/bin/postgresql-10-setup initdb
+  become: yes
+  when: not pg_stat_result.stat.exists
+
+- name: Make sure postgres is running and enabled on boot
+  systemd:
+    name: postgresql-10
+    state: started
+    enabled: yes
+  become: yes

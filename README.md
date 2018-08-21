@@ -14,15 +14,6 @@ on Centos 7 using Postgresql, Passenger + Nginx, and Let's Encrypt.
    - `redmine_database_name` - the name of the postgres redmine database
    - `redmine_database_username` - the name of the postgres redmine user
    - `redmine_database_password` - the postgres redmine user password
-   
-   *** DO NOT CHECK THIS FILE INTO VERSION CONTROL ***
-   (I alreay have it in `.gitignore`)
-
-   Note: It is understandably concerning that this deployment uses a plaintext
-   password and that Redmine itself stores the password in plaintext. However,
-   it is a purely local database with no remote connectivity, and so the only
-   vulnerability to the database would be someone with access to the host
-   itself.
 
 2. Create an `ansible/hosts.ini` (or whatver you want to call it; I already
    included `hosts.ini` in `.gitignore`) that holds all hosts to provision.
@@ -32,3 +23,14 @@ on Centos 7 using Postgresql, Passenger + Nginx, and Let's Encrypt.
 
 4. Run the Ansible playbook using `ansible-playbook -i ansible/hosts.ini
    ansible/redmine_centos7.yml`.
+
+   ***DO NOT CHECK `deployment_vars.yaml` or `hosts.ini` INTO VERSION
+   CONTROL***
+
+   (I already have them in `.gitignore`, but be careful.)
+
+   Note: It is understandably concerning that this deployment uses a plaintext
+   password and that Redmine itself stores the password in plaintext. However,
+   it is a purely local database with no remote connectivity, and so the only
+   vulnerability to the database would be someone with access to the host
+   itself.

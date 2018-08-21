@@ -1,0 +1,53 @@
+---
+- name: Get RVM GPG key
+  shell: gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+  become_user: "{{ redmine_system_user }}"
+  become: true
+
+- name: Download RVM installer
+  get_url:
+    url: https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer
+    dest: "/home/{{ redmine_system_user }}/rvm-installer"
+  become: yes
+
+- name: Download RVM installer signature
+  get_url:
+    url: https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer.asc
+    dest: "/home/{{ redmine_system_user }}/rvm-installer.asc"
+  become: yes
+
+- name: Verify RVM installer signature and install if valid
+  shell: "cd /home/{{ redmine_system_user }} && gpg --verify rvm-installer.asc && bash rvm-installer stable"
+  become: yes
+  become_user: "{{ redmine_system_user }}"
+
+- name: Install ruby dependencies
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - patch
+    - autoconf
+    - automake
+    - bison
+    - bzip2
+    - gcc-c++
+    - libffi-devel
+    - libtool
+    - patch
+    - readline-devel
+    - sqlite-devel
+    - zlib-devel
+    - glibc-headers
+    - glibc-devel
+    - openssl-devel
+    - libyaml-devel
+  become: yes
+
+- name: "Install ruby {{ ruby_version }}"
+  shell: "rvm autolibs disable && rvm install {{ ruby_version }} && rvm autolibs enable"
+  become: yes
+  become_user: "{{ redmine_system_user }}"
+  environment:
+    PATH: "/home/{{ redmine_system_user }}/.rvm/gems/ruby-{{ ruby_version }}/bin:/home/{{ redmine_system_user }}/.rvm/gems/ruby-{{ ruby_version }}@global/bin:/home/{{ redmine_system_user }}/.rvm/rubies/ruby-{{ ruby_version }}/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/{{ redmine_system_user }}/.rvm/bin:/home/{{ redmine_system_user }}/.local/bin:/home/{{ redmine_system_user }}/bin"
+    GEM_PATH: "/home/{{ redmine_system_user }}/.rvm/gems/ruby-{{ ruby_version }}:/home/{{ redmine_system_user }}/.rvm/gems/ruby-{{ ruby_version }}@global"

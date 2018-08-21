@@ -1,0 +1,28 @@
+---
+- name: Install EPEL repo
+  shell: yum install -y epel-release yum-utils && yum-config-manager --enable epel
+  become: yes
+
+- name: Install certbot
+  yum:
+    name: python-certbot-nginx
+    state: present
+  become: yes
+
+- name: Run certbox for nginx
+  shell: "certbot --nginx -n --agree-tos -m {{ letsencrypt_email }} -d {{ redmine_hostname }} --hsts"
+  become: yes
+
+- name: Set up certbot renewal cron job
+  cron:
+    name: "Certbot"
+    minute: "0"
+    hour: "0,12"
+    job: "python -c 'import random; import time; time.sleep(random.random() * 3600)' && certbot renew"
+  become: yes
+
+- name: Restart nginx
+  systemd:
+    name: nginx
+    state: restarted
+  become: yes

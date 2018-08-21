@@ -1,0 +1,4 @@
+*.DS_Store
+*.retry
+ansible/deployment_vars.yaml
+ansible/hosts.ini

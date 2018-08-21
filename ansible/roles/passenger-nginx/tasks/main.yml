@@ -1,0 +1,46 @@
+---
+- name: Install EPEL repo
+  shell: yum install -y epel-release yum-utils && yum-config-manager --enable epel
+  become: yes
+
+- name: Install nginx and passenger prerequisites
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - pygpgme
+    - curl
+  become: yes
+
+- name: Install passenger yum repo
+  shell: curl --fail -sSLo /etc/yum.repos.d/passenger.repo https://oss-binaries.phusionpassenger.com/yum/definitions/el-passenger.repo
+  become: yes
+
+- name: Install nginx and passenger
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - nginx
+    - passenger
+  become: yes
+
+- name: Uncomment passenger lines in passenger.conf
+  shell: sed -i '/^#passenger_root /s/^#//' /etc/nginx/conf.d/passenger.conf && sed -i '/^#passenger_ruby /s/^#//' /etc/nginx/conf.d/passenger.conf && sed -i '/^#passenger_instance_registry_dir /s/^#//' /etc/nginx/conf.d/passenger.conf
+  become: yes
+
+- name: Copy nginx configuration to server
+  template:
+    src: "{{ role_path }}/templates/nginx.conf.j2"
+    dest: /etc/nginx/nginx.conf
+  become: yes
+
+- name: Change selinux security context of redmine public directory
+  shell: "chcon -Rt httpd_sys_content_t /home/{{ redmine_system_user }}/redmine/public"
+  become: true
+
+- name: Restart nginx
+  systemd:
+    name: nginx
+    state: restarted
+  become: yes

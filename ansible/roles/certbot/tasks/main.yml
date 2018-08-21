@@ -10,7 +10,7 @@
   become: yes
 
 - name: Run certbox for nginx
-  shell: "certbot --nginx -n --agree-tos -m {{ letsencrypt_email }} -d {{ redmine_hostname }} --hsts"
+  shell: "certbot --nginx -n --agree-tos -m {{ letsencrypt_email }} -d {{ redmine_hostname }} --hsts --redirect"
   become: yes
 
 - name: Set up certbot renewal cron job

@@ -9,5 +9,6 @@
   cron:
     name: "Backup redmine"
     hour: "5"
+    minute: "0"
     job: "cd /home/{{ redmine_system_user }}/redmine && /usr/bin/pg_dump -U {{ redmine_database_username }} -Fc --file=redmine.sqlc {{ redmine_database_name }} && tar -czvf redmine_backup_`date +%Y-%m-%d` redmine.sqlc files && mv redmine_backup_* /home/{{ redmine_system_user }}/redmine/backup"
   become: yes
